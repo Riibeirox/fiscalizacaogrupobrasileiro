@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fiscalização - Relatório Diário</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#0b2545" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="apple-touch-icon" href="logo.png" />
+
+  <style>
+    :root { --bg:#0b2545; --card:#ffffff; --muted:#6b7280; }
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif; }
+    html, body { height: 100%; }
+    body { margin:0; background:#f3f4f6; color:#111827; }
+
+    header { background:var(--bg); color:#fff; padding:10px 16px; }
+    .brand { display:flex; align-items:center; gap:12px; }
+    .logo { height:44px; user-select: none; }
+    h1 { margin:0; font-size:20px; }
+    h2 { margin:0 0 10px 0; font-size:18px; }
+
+    main { padding:16px; max-width:980px; margin:0 auto; }
+    .card { background:var(--card); border-radius:16px; padding:16px; box-shadow:0 6px 20px rgba(0,0,0,.06); margin-bottom:16px; }
+
+    .row { display:flex; gap:12px; align-items:center; margin-bottom:12px; }
+    .row label { width:180px; color:var(--muted); }
+    .row input, select { flex:1; padding:10px 12px; border:1px solid #e5e7eb; border-radius:10px; background:#fff; }
+
+    .grid { display:grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap:12px; margin-bottom:12px; }
+
+    button { padding:8px 12px; border-radius:10px; border:1px solid #d1d5db; background:#fff; cursor:pointer; font-size:13px; }
+    button:hover { background:#f9fafb; }
+
+    .table-wrapper { overflow:auto; }
+    table { width:100%; border-collapse: collapse; }
+    th, td { padding:8px 10px; border-bottom:1px solid #e5e7eb; white-space:nowrap; }
+    td:last-child { text-align:right; }
+
+    .badge { background:#eef2ff; color:#3730a3; padding:2px 8px; border-radius:999px; font-size:12px; }
+    .list-header { display:flex; justify-content:space-between; align-items:center; }
+
+    .actions { display:flex; gap:12px; flex-wrap:wrap; margin-top:12px; }
+    footer { text-align:center; padding:24px; color:#6b7280; }
+    .small { color:#6b7280; font-size:12px; }
+
+    .delete { color:#b91c1c; border-color:#fecaca; }
+    .delete:hover { background:#fff1f2; }
+    .edit { color:#1d4ed8; border-color:#bfdbfe; margin-right:4px; }
+    .edit:hover { background:#eff6ff; }
+
+    /* Tela de Login */
+    #login-screen {
+      min-height: 100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+    }
+    .login-card { max-width:420px; width:100%; }
+
+    /* 👇 NOVO: logo na tela de login */
+    .login-logo-wrapper {
+      display:flex;
+      justify-content:center;
+      margin-bottom:12px;
+    }
+    .login-logo {
+      height:64px;
+      user-select:none;
+    }
+  </style>
+</head>
+<body>
+  <!-- TELA DE LOGIN -->
+  <div id="login-screen">
+    <section class="card login-card">
+      <!-- 👇 NOVO BLOCO COM A LOGO -->
+      <div class="login-logo-wrapper">
+        <img src="logo.png" alt="Cidade Sol" class="login-logo">
+      </div>
+
+      <h2>Login do Fiscal</h2>
+      <div class="row">
+        <label>Fiscal</label>
+        <select id="loginFiscal">
+          <option value="">Selecione</option>
+          <option value="lucas">Lucas Ribeiro</option>
+          <option value="everton">Everton</option>
+          <option value="luciano">Luciano</option>
+          <option value="wellington">Wellington</option>
+          <option value="joseval">Joseval</option>
+        </select>
+      </div>
+      <div class="row">
+        <label>PIN</label>
+        <input id="loginPin" type="password" placeholder="****" />
+      </div>
+      <button id="loginBtn" type="button">Entrar</button>
+      <p class="small" style="margin-top:8px;">
+        Problemas? Entre em contato.
+      </p>
+    </section>
+  </div>
+
+  <!-- APP PRINCIPAL -->
+  <div id="app" style="display:none;">
+    <header>
+      <div class="brand">
+        <img src="logo.png" class="logo" alt="Cidade Sol" />
+        <h1>Relatório Diário - Fiscalização</h1>
+      </div>
+    </header>
+
+    <main>
+      <section class="card">
+        <div class="row">
+          <label>Fiscal</label>
+          <input id="fiscal" type="text" placeholder="Nome do fiscal" readonly />
+        </div>
+        <div class="row">
+          <label>Data</label>
+          <input id="data" type="date" />
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Adicionar Linha</h2>
+        <div class="grid">
+          <div>
+            <label>De</label>
+            <select id="de">
+              <option value="Salvador">Salvador</option>
+              <option value="Camaçari">Camaçari</option>
+              <option value="Madre">Madre</option>
+              <option value="Candeias">Candeias</option>
+              <option value="C.Feira">C.Feira</option>
+              <option value="Teodoro">Teodoro</option>
+              <option value="Acupe">Acupe</option>
+              <option value="Bom jesus">Bom jesus</option>
+              <option value="Cabaceiras">Cabaceiras</option>
+              <option value="Cairu">Cairu</option>
+              <option value="Camamu">Camamu</option>
+              <option value="Maragojipe">Maragojipe</option>
+              <option value="Muritiba">Muritiba</option>
+              <option value="Oliveira">Oliveira</option>
+              <option value="São Félix">São Félix</option>
+              <option value="Santo Amaro">Santo Amaro</option>
+              <option value="Valença">Valença</option>
+              <option value="Alagoinhas">Alagoinhas</option>
+              <option value="Aramari">Aramari</option>
+              <option value="Biritinga">Biritinga</option>
+              <option value="Catu">Catu</option>
+              <option value="Irará">Irará</option>
+              <option value="Lagoa redonda">Lagoa redonda</option>
+              <option value="Lustosa">Lustosa</option>
+              <option value="Pedrão">Pedrão</option>
+              <option value="Sátiro Dias">Sátiro Dias</option>
+              <option value="Pojuca">Pojuca</option>
+            </select>
+          </div>
+          <div>
+            <label>Para</label>
+            <select id="para">
+              <option value="Salvador">Salvador</option>
+              <option value="Camaçari">Camaçari</option>
+              <option value="Madre">Madre</option>
+              <option value="Candeias">Candeias</option>
+              <option value="C.Feira">C.Feira</option>
+              <option value="Teodoro">Teodoro</option>
+              <option value="Acupe">Acupe</option>
+              <option value="Bom jesus">Bom jesus</option>
+              <option value="Cabaceiras">Cabaceiras</option>
+              <option value="Cairu">Cairu</option>
+              <option value="Camamu">Camamu</option>
+              <option value="Maragojipe">Maragojipe</option>
+              <option value="Muritiba">Muritiba</option>
+              <option value="Oliveira">Oliveira</option>
+              <option value="São Félix">São Félix</option>
+              <option value="Santo Amaro">Santo Amaro</option>
+              <option value="Valença">Valença</option>
+              <option value="Alagoinhas">Alagoinhas</option>
+              <option value="Aramari">Aramari</option>
+              <option value="Biritinga">Biritinga</option>
+              <option value="Catu">Catu</option>
+              <option value="Irará">Irará</option>
+              <option value="Lagoa redonda">Lagoa redonda</option>
+              <option value="Lustosa">Lustosa</option>
+              <option value="Pedrão">Pedrão</option>
+              <option value="Sátiro Dias">Sátiro Dias</option>
+              <option value="Pojuca">Pojuca</option>
+            </select>
+          </div>
+          <div>
+            <label>Horário</label>
+            <input id="horario" placeholder="" />
+          </div>
+          <div>
+            <label>Nº de Ordem</label>
+            <input id="ordem" placeholder="" />
+          </div>
+          <div>
+            <label>Local Emb.</label>
+            <input id="local" placeholder="" />
+          </div>
+          <div>
+            <label>Hora</label>
+            <input id="hora" placeholder="" />
+          </div>
+          <div>
+            <label>Motorista</label>
+            <input id="motorista" placeholder="" />
+          </div>
+          <div>
+            <label>Qtd. Paxs</label>
+            <input id="paxs" type="number" placeholder="" />
+          </div>
+        </div>
+        <button id="add" type="button">Adicionar linha</button>
+      </section>
+
+      <section class="card">
+        <div class="list-header">
+          <h2>Linhas adicionadas</h2>
+          <span id="count" class="badge">0</span>
+        </div>
+        <div class="table-wrapper">
+          <table id="tabela">
+            <thead>
+              <tr>
+                <th>De</th><th>Para</th><th>Cód.De</th><th>Cód.Para</th>
+                <th>Horário</th><th>Nº de Ordem</th><th>Local Emb.</th><th>Hora</th>
+                <th>Motorista</th><th>Qtd. Paxs</th><th>Linha</th><th>Ações</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="actions">
+         <button id="saveSheets" type="button">Salvar no Banco (Sheets)</button>
+         <button id="export" type="button">Gerar CSV</button>
+        </div>
+        <p class="small">Obs.: Aguarde a confirmação de envio.</p>
+      </section>
+    </main>
+
+    <footer><small>&copy; Projeto Fiscalização</small></footer>
+  </div>
+
+  <script>
+  const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwhatv-MCyz5FT9fCQHNdj0MXKoVn62qne4tVcdfvPwfgIo27U_wLEC44axbUBrOQON/exec';
+
+  const FISCAIS = [
+    { id: 'lucas', name: 'Lucas Ribeiro', pin: '1993' },
+    { id: 'everton', name: 'Everton', pin: '2025' },
+    { id: 'luciano', name: 'Luciano', pin: '6060' },
+    { id: 'wellington', name: 'Wellington', pin: '7070' },
+    { id: 'joseval', name: 'Joseval', pin: '8080' },
+  ];
+
+  const CODIGOS = {
+    "Camaçari":1,"Madre":2,"Candeias":3,"C.Feira":4,"Teodoro":5,"Acupe":6,"Bom jesus":7,"Cabaceiras":8,"Cairu":9,
+    "Camamu":10,"Maragojipe":11,"Muritiba":12,"Oliveira":13,"São Félix":14,"Santo Amaro":15,"Valença":16,"Alagoinhas":17,
+    "Aramari":18,"Biritinga":19,"Catu":20,"Irará":21,"Lagoa redonda":22,"Lustosa":23,"Pedrão":24,"Sátiro Dias":25,"Pojuca":26
+  };
+
+  const CIDADES = [
+    "Salvador","Camaçari","Madre","Candeias","C.Feira","Teodoro","Acupe","Bom jesus","Cabaceiras","Cairu",
+    "Camamu","Maragojipe","Muritiba","Oliveira","São Félix","Santo Amaro","Valença","Alagoinhas",
+    "Aramari","Biritinga","Catu","Irará","Lagoa redonda","Lustosa","Pedrão","Sátiro Dias","Pojuca"
+  ];
+
+  window.onload = function () {
+    const loginScreen = document.getElementById('login-screen');
+    const app = document.getElementById('app');
+    const loginFiscal = document.getElementById('loginFiscal');
+    const loginPin = document.getElementById('loginPin');
+    const loginBtn = document.getElementById('loginBtn');
+
+    const selDe = document.getElementById("de");
+    const selPara = document.getElementById("para");
+
+    const fiscal   = document.getElementById("fiscal");
+    const dataInput= document.getElementById("data");
+    const whats    = document.getElementById("whats"); // não usado, mas mantido
+
+    const horario  = document.getElementById("horario");
+    const ordem    = document.getElementById("ordem");
+    const localEmb = document.getElementById("local");
+    const hora     = document.getElementById("hora");
+    const motorista= document.getElementById("motorista");
+    const paxs     = document.getElementById("paxs");
+
+    const addBtn   = document.getElementById("add");
+    const tbody    = document.querySelector("#tabela tbody");
+    const count    = document.getElementById("count");
+    const exportBtn= document.getElementById("export");
+    const shareBtn = document.getElementById("share");
+    const saveBtn  = document.getElementById("saveSheets");
+
+    function preencherSelect(select) {
+      select.innerHTML = "";
+      CIDADES.forEach(c => {
+        const opt = document.createElement("option");
+        opt.value = c;
+        opt.text = c;
+        select.appendChild(opt);
+      });
+    }
+
+    if (selDe && selDe.options.length === 0) preencherSelect(selDe);
+    if (selPara && selPara.options.length === 0) preencherSelect(selPara);
+
+    try {
+      if (dataInput) dataInput.valueAsDate = new Date();
+    } catch (e) {}
+
+    if (selDe) selDe.value = "Salvador";
+    if (selPara) selPara.value = "Camaçari";
+
+    let linhas = [];
+    let usuarioAtual = null;
+
+    function getCodigo(cidade) {
+      return CODIGOS[cidade] || "";
+    }
+
+    function getLinhaCodigo(de, para) {
+      const codDe = getCodigo(de);
+      if (codDe) return codDe;
+      return getCodigo(para) || "";
+    }
+
+    function render() {
+      tbody.innerHTML = "";
+      linhas.forEach((l, index) => {
+        const tr = document.createElement("tr");
+        const cols = [
+          l["De"],
+          l["Para"],
+          getCodigo(l["De"]),
+          getCodigo(l["Para"]),
+          l["Horário"],
+          l["Nº de Ordem"],
+          l["Local Emb."],
+          l["Hora"],
+          l["Motorista"],
+          l["Qtd. Paxs"],
+          getLinhaCodigo(l["De"], l["Para"])
+        ];
+        cols.forEach(c => {
+          const td = document.createElement("td");
+          td.textContent = c;
+          tr.appendChild(td);
+        });
+
+        const tdActions = document.createElement("td");
+
+        const edit = document.createElement("button");
+        edit.className = "edit";
+        edit.textContent = "Editar";
+        edit.onclick = function () {
+          selDe.value       = l["De"];
+          selPara.value     = l["Para"];
+          horario.value     = l["Horário"];
+          ordem.value       = l["Nº de Ordem"];
+          localEmb.value    = l["Local Emb."];
+          hora.value        = l["Hora"];
+          motorista.value   = l["Motorista"];
+          paxs.value        = l["Qtd. Paxs"];
+          linhas.splice(index, 1);
+          render();
+        };
+        tdActions.appendChild(edit);
+
+        const del = document.createElement("button");
+        del.className = "delete";
+        del.textContent = "Excluir";
+        del.style.marginLeft = "4px";
+        del.onclick = function () {
+          linhas.splice(index, 1);
+          render();
+        };
+        tdActions.appendChild(del);
+
+        tr.appendChild(tdActions);
+        tbody.appendChild(tr);
+      });
+
+      count.textContent = String(linhas.length);
+    }
+
+    function addLinha(e) {
+      if (e) e.preventDefault();
+      if (!selDe || !selPara) return;
+
+      const linha = {
+        "De": selDe.value,
+        "Para": selPara.value,
+        "Horário": horario.value || "",
+        "Nº de Ordem": ordem.value || "",
+        "Local Emb.": localEmb.value || "",
+        "Hora": hora.value || "",
+        "Motorista": motorista.value || "",
+        "Qtd. Paxs": paxs.value || ""
+      };
+
+      linhas.unshift(linha);
+      render();
+
+      horario.value = "";
+      ordem.value   = "";
+      localEmb.value= "";
+      hora.value    = "";
+      motorista.value="";
+      paxs.value    = "";
+    }
+
+    function gerarCSVString() {
+      const header = ["De","Para","Horario","N de Ordem","Local Emb.","Hora","Motorista","Qtd. Paxs","linha","Fiscal","Data"];
+      const linhasStr = [];
+      linhasStr.push(header.join(";"));
+
+      linhas.forEach(l => {
+        const row = [
+          l["De"],
+          l["Para"],
+          l["Horário"],
+          l["Nº de Ordem"],
+          l["Local Emb."],
+          l["Hora"],
+          l["Motorista"],
+          l["Qtd. Paxs"],
+          String(getLinhaCodigo(l["De"], l["Para"])),
+          fiscal.value || "",
+          dataInput.value || ""
+        ];
+        linhasStr.push(row.join(";"));
+      });
+
+      return linhasStr.join("\r\n");
+    }
+
+    function gerarCSVBlob() {
+      const csv = gerarCSVString();
+      return new Blob([csv], { type: "text/csv;charset=utf-8" });
+    }
+
+    function baixarCSV() {
+      const blob = gerarCSVBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const dt = (dataInput.value || new Date().toISOString().slice(0,10)).replace(/-/g, "");
+      a.href = url;
+      a.download = "relatorio_fiscalizacao_" + dt + ".csv";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function salvarNoSheets() {
+      if (!SHEETS_WEBAPP_URL) {
+        alert("Configure a URL do Google Apps Script no código (SHEETS_WEBAPP_URL).");
+        return;
+      }
+      if (!linhas.length) {
+        alert("Nenhuma linha para salvar.");
+        return;
+      }
+
+      const rows = linhas.map(l => [
+        l["De"],
+        l["Para"],
+        l["Horário"],
+        l["Nº de Ordem"],
+        l["Local Emb."],
+        l["Hora"],
+        l["Motorista"],
+        l["Qtd. Paxs"],
+        String(getLinhaCodigo(l["De"], l["Para"])),
+        fiscal.value || "",
+        dataInput.value || ""
+      ]);
+
+      fetch(SHEETS_WEBAPP_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ rows })
+      })
+      .then(resp => resp.text())
+      .then(text => {
+        try {
+          const data = JSON.parse(text);
+          if (data.status === 'ok') {
+            alert("Registros enviados para o banco (Sheets): " + data.inserted + " linha(s).");
+          } else {
+            alert("Resposta inesperada do servidor: " + text);
+          }
+        } catch(e) {
+          alert("Resposta do servidor: " + text);
+        }
+      })
+      .catch(err => {
+        alert("Erro ao enviar para o Sheets: " + err);
+      });
+    }
+
+    // Login
+    function finalizarLogin(usuario) {
+      usuarioAtual = usuario;
+      if (fiscal) {
+        fiscal.value = usuario.name;
+        fiscal.readOnly = true;
+      }
+      loginScreen.style.display = 'none';
+      app.style.display = 'block';
+      localStorage.setItem('fiscalId', usuario.id);
+    }
+
+    function tentarAutoLogin() {
+      const savedId = localStorage.getItem('fiscalId');
+      if (savedId) {
+        const usuario = FISCAIS.find(f => f.id === savedId);
+        if (usuario) {
+          finalizarLogin(usuario);
+          return;
+        }
+      }
+      loginScreen.style.display = 'flex';
+      app.style.display = 'none';
+    }
+
+    function realizarLogin() {
+      const idSel = loginFiscal.value;
+      const pin = loginPin.value || "";
+      if (!idSel) {
+        alert("Selecione o fiscal.");
+        return;
+      }
+      const usuario = FISCAIS.find(f => f.id === idSel);
+      if (!usuario) {
+        alert("Fiscal não encontrado.");
+        return;
+      }
+      if (usuario.pin !== pin) {
+        alert("PIN incorreto.");
+        return;
+      }
+      finalizarLogin(usuario);
+    }
+
+    if (loginBtn) loginBtn.onclick = realizarLogin;
+
+    if (addBtn)    addBtn.onclick    = addLinha;
+    if (exportBtn) exportBtn.onclick = baixarCSV;
+    if (saveBtn)   saveBtn.onclick   = salvarNoSheets;
+
+    tentarAutoLogin();
+  };
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('Service Worker registrado:', reg.scope))
+        .catch(err => console.log('Falha ao registrar Service Worker:', err));
+    });
+  }
+  </script>
+</body>
+</html>
