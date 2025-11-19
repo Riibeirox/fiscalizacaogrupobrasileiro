@@ -2,545 +2,924 @@
 <html lang="pt-br">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Fiscalização - Sistema Interno</title>
-
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.webmanifest" />
-  <meta name="theme-color" content="#0b2545" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <link rel="apple-touch-icon" href="logo.png" />
-
-  <!-- jsPDF local -->
-  <script src="jspdf.umd.min.js"></script>
-
+  <title>Fiscalização - Ocorrências</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Registro de Ocorrências - Fiscalização" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0d47a1" />
   <style>
-    :root { --bg:#0b2545; --card:#ffffff; --muted:#6b7280; }
-    * { box-sizing: border-box; font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif; }
-    html, body { height: 100%; }
-    body { margin:0; background:#f3f4f6; color:#111827; }
-
-    header { background:var(--bg); color:#fff; padding:10px 16px 0 16px; }
-    .brand { display:flex; align-items:center; gap:12px; }
-    .logo { height:44px; user-select: none; }
-    h1 { margin:0; font-size:20px; }
-
-    /* Tabs */
-    .tabs { margin-top:8px; display:flex; gap:8px; }
-    .tab {
-      background:transparent; border:none; padding:8px 12px;
-      color:#e5e7eb; cursor:pointer; font-size:14px;
-      border-bottom:2px solid transparent;
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f3f4f6;
+      color: #111827;
     }
-    .tab.active { border-bottom-color:#facc15; color:#facc15; font-weight:600; }
-
-    main { padding:16px; max-width:1000px; margin:0 auto; }
-    .card {
-      background:var(--card); border-radius:16px;
-      padding:16px; box-shadow:0 6px 20px rgba(0,0,0,.06); margin-bottom:16px;
+    header {
+      background: linear-gradient(90deg, #0d47a1, #1976d2);
+      color: #fff;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
-
-    .row { display:flex; gap:12px; align-items:center; margin-bottom:12px; }
-    .row label { width:180px; color:var(--muted); }
-    .row input, select, textarea {
-      flex:1; padding:10px 12px; border:1px solid #e5e7eb;
-      border-radius:10px; background:#fff;
+    header h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
     }
-
-    .grid {
-      display:grid; grid-template-columns: repeat(2,minmax(0,1fr));
-      gap:12px; margin-bottom:12px;
+    header .version {
+      margin-left: auto;
+      font-size: 11px;
+      opacity: 0.8;
     }
-
+    main {
+      max-width: 960px;
+      margin: 8px auto 24px;
+      padding: 0 12px;
+    }
+    section.card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.06);
+      border: 1px solid #e5e7eb;
+    }
+    section.card h2 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    section.card h2 span.badge {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      margin-bottom: 8px;
+      flex: 1 1 120px;
+      min-width: 0;
+    }
+    .field label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #374151;
+    }
+    .field input,
+    .field select,
+    .field textarea {
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      padding: 6px 8px;
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      background: #f9fafb;
+      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.15);
+      background: #ffffff;
+    }
+    .field textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+    .field small {
+      font-size: 11px;
+      color: #6b7280;
+    }
+    .field-inline {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+    .field-inline label {
+      font-weight: 500;
+      color: #374151;
+    }
+    .field-inline input[type="checkbox"] {
+      width: 14px;
+      height: 14px;
+    }
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
     button {
-      padding:8px 12px; border-radius:10px; border:1px solid #d1d5db;
-      background:#fff; cursor:pointer; font-size:13px;
+      border: none;
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #2563eb;
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
+      transition: background 0.15s, transform 0.1s, box-shadow 0.1s;
     }
-    button:hover { background:#f9fafb; }
-
-    table { width:100%; border-collapse: collapse; }
-    th, td {
-      padding:8px 10px; border-bottom:1px solid #e5e7eb;
-      white-space:nowrap;
+    button.secondary {
+      background: #f3f4f6;
+      color: #111827;
+      box-shadow: none;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
     }
-
-    .badge { background:#eef2ff; color:#3730a3; padding:2px 8px; border-radius:999px; font-size:12px; }
-    .list-header { display:flex; justify-content:space-between; align-items:center; }
-    .delete { color:#b91c1c; border-color:#fecaca; }
-    .edit   { color:#1d4ed8; border-color:#bfdbfe; }
-
-    footer { text-align:center; padding:24px; color:#6b7280; }
-
-    /* LOGIN */
-    #login-screen {
-      min-height: 100vh; display:flex; align-items:center;
-      justify-content:center; padding:16px;
+    button.danger {
+      background: #b91c1c;
+      box-shadow: 0 2px 6px rgba(185, 28, 28, 0.35);
     }
-    .login-card { max-width:420px; width:100%; }
-    .login-logo-wrapper { display:flex; justify-content:center; margin-bottom:12px; }
-    .login-logo { height:64px; }
-
+    button:active {
+      transform: translateY(1px);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.15);
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    .chip-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .chip {
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 11px;
+      border: 1px solid #d1d5db;
+      cursor: pointer;
+      background: #f9fafb;
+      color: #374151;
+    }
+    .chip.active {
+      background: #eff6ff;
+      border-color: #2563eb;
+      color: #1d4ed8;
+      font-weight: 500;
+    }
+    .footer-hint {
+      font-size: 11px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+    .hidden {
+      display: none !important;
+    }
+    .pill-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      background: #ecfdf5;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+      margin-left: 4px;
+    }
+    .pill-tag span {
+      font-weight: 600;
+    }
+    .toggle-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .toggle-row label {
+      font-weight: 500;
+    }
+    .small-note {
+      font-size: 11px;
+      color: #6b7280;
+    }
+    .photos-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .photos-row input[type="file"] {
+      font-size: 12px;
+    }
+    .photo-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .photo-preview img {
+      width: 72px;
+      height: 72px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+    }
+    .photo-card {
+      position: relative;
+    }
+    .photo-card button.remove-photo {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      border: none;
+      background: rgba(239, 68, 68, 0.9);
+      color: #fff;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.25);
+    }
+    .alert {
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    .alert.info {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+    }
+    .alert.warning {
+      background: #fffbeb;
+      color: #92400e;
+      border: 1px solid #fed7aa;
+    }
+    .alert.success {
+      background: #ecfdf5;
+      color: #15803d;
+      border: 1px solid #bbf7d0;
+    }
+    .inline-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background: #f3f4f6;
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+    @media (max-width: 640px) {
+      header h1 {
+        font-size: 16px;
+      }
+      section.card {
+        padding: 10px;
+      }
+      .btn-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      button {
+        justify-content: center;
+        width: 100%;
+      }
+    }
   </style>
 </head>
-
 <body>
-
-<!-- LOGIN -->
-<div id="login-screen">
-  <section class="card login-card">
-    <div class="login-logo-wrapper">
-      <img src="logo.png" class="login-logo" />
-    </div>
-    <h2>Login do Fiscal</h2>
-
-    <div class="row">
-      <label>Fiscal</label>
-      <select id="loginFiscal">
-        <option value="">Selecione</option>
-        <option value="Lucas">Lucas Ribeiro</option>
-        <option value="Everton">Everton</option>
-        <option value="Luciano">Luciano</option>
-        <option value="Wellington">Wellington</option>
-        <option value="Joseval">Joseval</option>
-      </select>
-    </div>
-
-    <div class="row">
-      <label>PIN</label>
-      <input id="loginPin" type="password" placeholder="****" />
-    </div>
-
-    <button id="loginBtn">Entrar</button>
-  </section>
-</div>
-
-<!-- APP -->
-<div id="app" style="display:none;">
   <header>
-    <div class="brand">
-      <img src="logo.png" class="logo" />
-      <h1>Sistema de Fiscalização</h1>
+    <div>
+      <div style="font-size:11px; opacity:0.9;">APP Fiscalização</div>
+      <h1>Registro de Ocorrências</h1>
     </div>
-
-    <nav class="tabs">
-      <button class="tab active" data-target="diario">Relatório Diário</button>
-      <button class="tab" data-target="ocorrencia">Registro de Ocorrência</button>
-    </nav>
+    <span class="version">v1.0.0</span>
   </header>
-  <!-- TELA RELATÓRIO DIÁRIO -->
-  <main id="main-diario">
-
+  <main>
+    <!-- Dados do Fiscal -->
     <section class="card">
+      <h2>Dados do Fiscal <span class="badge">Identificação</span></h2>
       <div class="row">
-        <label>Fiscal</label>
-        <input id="fiscal" readonly />
-      </div>
-      <div class="row">
-        <label>Data</label>
-        <input id="data" type="date" />
+        <div class="field">
+          <label for="fiscal_nome">Nome do Fiscal</label>
+          <input type="text" id="fiscal_nome" placeholder="Ex: João Silva" />
+        </div>
+        <div class="field">
+          <label for="fiscal_matricula">Matrícula</label>
+          <input type="text" id="fiscal_matricula" placeholder="Ex: 12345" />
+        </div>
+        <div class="field">
+          <label for="fiscal_base">Base / Local</label>
+          <input type="text" id="fiscal_base" placeholder="Ex: Terminal Pirajá" />
+        </div>
       </div>
     </section>
 
+    <!-- Dados Básicos da Ocorrência -->
     <section class="card">
-      <h2>Adicionar Linha</h2>
-
-      <div class="grid">
-        <div><label>De</label><select id="de"></select></div>
-        <div><label>Para</label><select id="para"></select></div>
-        <div><label>Horário</label><input id="horario" /></div>
-        <div><label>Nº de Ordem</label><input id="ordem" /></div>
-        <div><label>Local Emb.</label><input id="local" /></div>
-        <div><label>Hora</label><input id="hora" /></div>
-        <div><label>Motorista</label><input id="motorista" /></div>
-        <div><label>Qtd. Paxs</label><input id="paxs" type="number" /></div>
+      <h2>Dados Básicos <span class="badge">Ocorrência</span></h2>
+      <div class="row">
+        <div class="field">
+          <label for="oc_data">Data</label>
+          <input type="date" id="oc_data" />
+        </div>
+        <div class="field">
+          <label for="oc_hora">Hora</label>
+          <input type="time" id="oc_hora" />
+        </div>
+        <div class="field">
+          <label for="oc_cidade">Cidade / Local</label>
+          <input type="text" id="oc_cidade" placeholder="Ex: Salvador - BA" />
+        </div>
       </div>
-
-      <button id="add">Adicionar linha</button>
+      <div class="row">
+        <div class="field">
+          <label for="oc_linha">Linha</label>
+          <input type="text" id="oc_linha" placeholder="Ex: Salvador x Alagoinhas" />
+        </div>
+        <div class="field">
+          <label for="oc_prefixo">Prefixo do Veículo</label>
+          <input type="text" id="oc_prefixo" placeholder="Ex: 9380" />
+        </div>
+        <div class="field">
+          <label for="oc_placa">Placa</label>
+          <input type="text" id="oc_placa" placeholder="Ex: ABC-1234" />
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="oc_tipo">Tipo de Ocorrência</label>
+          <select id="oc_tipo">
+            <option value="">Selecione...</option>
+            <option value="Passageiro sem bilhete">Passageiro sem bilhete</option>
+            <option value="Falta de prestação de contas">Falta de prestação de contas</option>
+            <option value="Venda incorreta">Venda incorreta</option>
+            <option value="Descida irregular">Descida irregular</option>
+            <option value="Outros">Outros</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="oc_gravidade">Gravidade</label>
+          <select id="oc_gravidade">
+            <option value="">Selecione...</option>
+            <option value="Baixa">Baixa</option>
+            <option value="Média">Média</option>
+            <option value="Alta">Alta</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="oc_envolvidos">Envolvidos (motorista, cobrador, etc.)</label>
+          <input type="text" id="oc_envolvidos" placeholder="Ex: Motorista - João; Cobrador - Carlos" />
+        </div>
+      </div>
     </section>
 
+    <!-- Descrição da Ocorrência -->
     <section class="card">
-      <div class="list-header">
-        <h2>Linhas adicionadas</h2>
-        <span id="count" class="badge">0</span>
+      <h2>Descrição da Ocorrência</h2>
+      <div class="field">
+        <label for="oc_resumo">Resumo da Ocorrência</label>
+        <textarea id="oc_resumo" placeholder="Descreva resumidamente o que foi identificado..."></textarea>
+        <small>Ex.: Passageiro foi identificado sem bilhete embarcado no trecho Salvador x Simões Filho.</small>
       </div>
+      <div class="field">
+        <label for="oc_detalhes">Detalhamento (o quê, quando, onde, quem, como)</label>
+        <textarea id="oc_detalhes" placeholder="Inclua o máximo de informações úteis para análise posterior..."></textarea>
+      </div>
+      <div class="field">
+        <label for="oc_acoes">Ações adotadas pelo fiscal</label>
+        <textarea id="oc_acoes" placeholder="Ex.: Passageiro orientado a regularizar bilhete; tripulação orientada; registro no sistema..."></textarea>
+      </div>
+    </section>
 
-      <table>
-        <thead>
-          <tr>
-            <th>De</th><th>Para</th><th>Cód.De</th><th>Cód.Para</th>
-            <th>Horário</th><th>Nº Ordem</th><th>Local</th><th>Hora</th>
-            <th>Motorista</th><th>Paxs</th><th>Linha</th><th>Ações</th>
-          </tr>
-        </thead>
-        <tbody id="tabela"></tbody>
-      </table>
+    <!-- Evidências e Fotos -->
+    <section class="card">
+      <h2>Evidências <span class="badge">Fotos / Documentos</span></h2>
+      <div class="photos-row">
+        <div class="field">
+          <label for="oc_fotos">Fotos da Ocorrência</label>
+          <input type="file" id="oc_fotos" accept="image/*" multiple />
+          <small>Opcional. As fotos não serão enviadas para servidor, apenas utilizadas para gerar o PDF localmente.</small>
+        </div>
+        <div id="photo_preview" class="photo-preview"></div>
+      </div>
+      <div class="alert info">
+        As evidências são importantes para embasar possíveis medidas internas (orientação, advertência, suspensão, etc.).
+      </div>
+    </section>
 
+    <!-- Classificação / Encaminhamento -->
+    <section class="card">
+      <h2>Classificação e Encaminhamento</h2>
       <div class="row">
-        <button id="saveSheets">Salvar no Banco</button>
-        <button id="export">Gerar CSV</button>
+        <div class="field">
+          <label for="oc_classificacao">Classificação</label>
+          <select id="oc_classificacao">
+            <option value="">Selecione...</option>
+            <option value="Orientação">Orientação</option>
+            <option value="Advertência">Advertência</option>
+            <option value="Suspensão">Suspensão</option>
+            <option value="Outros encaminhamentos">Outros encaminhamentos</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="oc_setor">Setor Responsável</label>
+          <select id="oc_setor">
+            <option value="">Selecione...</option>
+            <option value="Operação">Operação</option>
+            <option value="Comercial">Comercial</option>
+            <option value="RH">RH</option>
+            <option value="Financeiro">Financeiro</option>
+            <option value="Outros">Outros</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="oc_prazo">Prazo para retorno / providências</label>
+          <input type="date" id="oc_prazo" />
+        </div>
+      </div>
+      <div class="field">
+        <label for="oc_observacoes">Observações ao setor responsável</label>
+        <textarea id="oc_observacoes" placeholder="Ex.: Solicitar análise de imagens, conferência de prestação de contas, etc."></textarea>
+      </div>
+    </section>
+
+    <!-- Geração e Compartilhamento -->
+    <section class="card">
+      <h2>Geração e Compartilhamento</h2>
+      <div class="toggle-row">
+        <label>Formato de registro:</label>
+        <div class="chip-group">
+          <button type="button" class="chip active" data-format="pdf">PDF</button>
+          <button type="button" class="chip" data-format="link">Link (texto compartilhável)</button>
+        </div>
+      </div>
+      <div class="field-inline">
+        <label for="oc_anonimo">Ocorrência anônima:</label>
+        <input type="checkbox" id="oc_anonimo" />
+        <span class="small-note">(oculta o nome do fiscal no texto enviado)</span>
+      </div>
+      <div class="btn-row">
+        <button id="btn_gerar_pdf_ocorrencia" type="button">
+          📄 Gerar PDF da Ocorrência
+        </button>
+        <button id="btn_gerar_link_ocorrencia" type="button" class="secondary">
+          🔗 Gerar Link / Texto
+        </button>
+        <button id="btn_limpar" type="button" class="secondary">
+          🧹 Limpar Tudo
+        </button>
+      </div>
+      <div class="footer-hint">
+        O PDF é gerado localmente no seu dispositivo. Nenhuma informação é enviada para servidor.
+      </div>
+      <div class="alert warning hidden" id="offline_alert">
+        Você está offline. O PDF continuará sendo gerado localmente, mas funcionalidades que dependem de internet podem não funcionar.
+      </div>
+      <div class="alert success hidden" id="copy_success">
+        Texto da ocorrência copiado com sucesso para a área de transferência!
       </div>
     </section>
   </main>
 
-  <!-- TELA REGISTRO DE OCORRÊNCIA -->
-  <main id="main-ocorrencia" style="display:none;">
+  <script>
+    // Referências aos elementos
+    const fiscal = document.getElementById("fiscal_nome");
+    const fiscalMatricula = document.getElementById("fiscal_matricula");
+    const fiscalBase = document.getElementById("fiscal_base");
+    const dataInput = document.getElementById("oc_data");
+    const horaInput = document.getElementById("oc_hora");
+    const cidadeInput = document.getElementById("oc_cidade");
+    const linhaInput = document.getElementById("oc_linha");
+    const prefixoInput = document.getElementById("oc_prefixo");
+    const placaInput = document.getElementById("oc_placa");
+    const tipoInput = document.getElementById("oc_tipo");
+    const gravidadeInput = document.getElementById("oc_gravidade");
+    const envolvidosInput = document.getElementById("oc_envolvidos");
+    const resumoInput = document.getElementById("oc_resumo");
+    const detalhesInput = document.getElementById("oc_detalhes");
+    const acoesInput = document.getElementById("oc_acoes");
+    const classificacaoInput = document.getElementById("oc_classificacao");
+    const setorInput = document.getElementById("oc_setor");
+    const prazoInput = document.getElementById("oc_prazo");
+    const obsInput = document.getElementById("oc_observacoes");
+    const anonimoCheckbox = document.getElementById("oc_anonimo");
 
-    <section class="card">
-      <h2>Registro de Ocorrência</h2>
+    const oc_fotos = document.getElementById("oc_fotos");
+    const photoPreview = document.getElementById("photo_preview");
 
-      <div class="row"><label>Fiscal</label><input id="oc_fiscal" readonly></div>
-      <div class="row"><label>Data</label><input id="oc_data" type="date"></div>
-    </section>
+    const oc_pdf_btn = document.getElementById("btn_gerar_pdf_ocorrencia");
+    const oc_link_btn = document.getElementById("btn_gerar_link_ocorrencia");
+    const limpar_btn = document.getElementById("btn_limpar");
 
-    <section class="card">
-      <h3>Dados da Viagem</h3>
+    const offline_alert = document.getElementById("offline_alert");
+    const copy_success = document.getElementById("copy_success");
 
-      <div class="grid">
-        <div><label>De</label><select id="oc_de"></select></div>
-        <div><label>Para</label><select id="oc_para"></select></div>
-        <div><label>Horário</label><input id="oc_horario"></div>
-        <div><label>Nº Ordem</label><input id="oc_ordem"></div>
-        <div><label>Local Emb.</label><input id="oc_local"></div>
-        <div><label>Hora</label><input id="oc_hora"></div>
-        <div><label>Motorista</label><input id="oc_motorista"></div>
-        <div><label>Paxs</label><input id="oc_paxs" type="number"></div>
-      </div>
-    </section>
+    const formatChips = document.querySelectorAll(".chip-group .chip");
 
-    <section class="card">
-      <h3>Ocorrência</h3>
+    let fotosSelecionadas = [];
 
-      <div class="row" style="align-items:flex-start;">
-        <label>Descrição</label>
-        <textarea id="oc_texto" rows="6"
-        placeholder="Descreva a ocorrência detalhadamente..."></textarea>
-      </div>
-
-      <div class="row">
-        <label>Fotos</label>
-        <input id="oc_fotos" type="file" accept="image/*" multiple />
-      </div>
-
-      <button id="oc_pdf">Gerar PDF</button>
-    </section>
-
-  </main>
-
-  <footer><small>&copy; Sistema de Fiscalização</small></footer>
-</div>
-
-<script>
-/* ==========================
-   CONFIGURAÇÕES GERAIS
-========================== */
-
-const SHEETS_WEBAPP_URL =
-  "https://script.google.com/macros/s/AKfycbwhatv-MCyz5FT9fCQHNdj0MXKoVn62qne4tVcdfvPwfgIo27U_wLEC44axbUBrOQON/exec";
-
-const FISCAIS = [
-  { id: "Lucas", name: "Lucas Ribeiro", pin: "1993" },
-  { id: "Everton", name: "Everton", pin: "2025" },
-  { id: "Luciano", name: "Luciano", pin: "6060" },
-  { id: "Wellington", name: "Wellington", pin: "7070" },
-  { id: "Joseval", name: "Joseval", pin: "8080" }
-];
-
-const CODIGOS = {
-  "Camaçari":1,"Madre":2,"Candeias":3,"C.Feira":4,"Teodoro":5,"Acupe":6,
-  "Bom jesus":7,"Cabaceiras":8,"Cairu":9,"Camamu":10,"Maragojipe":11,
-  "Muritiba":12,"Oliveira":13,"São Félix":14,"Santo Amaro":15,"Valença":16,
-  "Alagoinhas":17,"Aramari":18,"Biritinga":19,"Catu":20,"Irará":21,
-  "Lagoa redonda":22,"Lustosa":23,"Pedrão":24,"Sátiro Dias":25,"Pojuca":26
-};
-
-const CIDADES = Object.keys(CODIGOS).concat(["Salvador"]);
-
-/* ==========================
-   LOGIN
-========================== */
-
-document.getElementById("loginBtn").onclick = () => {
-  const id = document.getElementById("loginFiscal").value;
-  const pin = document.getElementById("loginPin").value;
-
-  const user = FISCAIS.find(f => f.id === id);
-  if (!user) return alert("Selecione um fiscal.");
-  if (user.pin !== pin) return alert("PIN incorreto!");
-
-  localStorage.setItem("fiscalId", user.id);
-  iniciarApp(user);
-};
-
-function iniciarApp(user) {
-  document.getElementById("login-screen").style.display = "none";
-  document.getElementById("app").style.display = "block";
-
-  document.getElementById("fiscal").value = user.name;
-  document.getElementById("oc_fiscal").value = user.name;
-
-  document.getElementById("data").valueAsDate = new Date();
-  document.getElementById("oc_data").valueAsDate = new Date();
-
-  preencherSelects();
-}
-
-/* Auto login */
-const saved = localStorage.getItem("fiscalId");
-if (saved) {
-  const user = FISCAIS.find(f => f.id === saved);
-  if (user) iniciarApp(user);
-}
-
-  /* ==========================
-   SELECTS (CIDADES)
-========================== */
-
-function preencherSelects() {
-  ["de","para","oc_de","oc_para"].forEach(id => {
-    const sel = document.getElementById(id);
-    sel.innerHTML = "";
-    ["Salvador", ...Object.keys(CODIGOS)].forEach(c => {
-      const op = document.createElement("option");
-      op.value = op.text = c;
-      sel.appendChild(op);
-    });
-  });
-
-  document.getElementById("de").value = "Salvador";
-  document.getElementById("para").value = "Camaçari";
-
-  document.getElementById("oc_de").value = "Salvador";
-  document.getElementById("oc_para").value = "Camaçari";
-}
-
-/* ==========================
-   RELATÓRIO DIÁRIO
-========================== */
-
-let linhas = [];
-
-function getCod(c) { return CODIGOS[c] || ""; }
-function getLinha(de, para) { return getCod(de) || getCod(para); }
-
-document.getElementById("add").onclick = () => {
-  const l = {
-    De: document.getElementById("de").value,
-    Para: document.getElementById("para").value,
-    Horário: document.getElementById("horario").value,
-    Ordem: document.getElementById("ordem").value,
-    Local: document.getElementById("local").value,
-    Hora: document.getElementById("hora").value,
-    Motorista: document.getElementById("motorista").value,
-    Paxs: document.getElementById("paxs").value
-  };
-  linhas.unshift(l);
-  render();
-};
-
-function render() {
-  const tbody = document.getElementById("tabela");
-  tbody.innerHTML = "";
-  linhas.forEach((l,i) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${l.De}</td>
-      <td>${l.Para}</td>
-      <td>${getCod(l.De)}</td>
-      <td>${getCod(l.Para)}</td>
-      <td>${l.Horário}</td>
-      <td>${l.Ordem}</td>
-      <td>${l.Local}</td>
-      <td>${l.Hora}</td>
-      <td>${l.Motorista}</td>
-      <td>${l.Paxs}</td>
-      <td>${getLinha(l.De,l.Para)}</td>
-      <td>
-        <button class="edit">Editar</button>
-        <button class="delete">Del</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-
-    tr.querySelector(".delete").onclick = () => { linhas.splice(i,1); render(); };
-    tr.querySelector(".edit").onclick = () => {
-      ["De","Para","Horário","Ordem","Local","Hora","Motorista","Paxs"].forEach(campo => {
-        document.getElementById(campo.toLowerCase()).value = l[campo];
+    // Controle de formato
+    let formatoSelecionado = "pdf";
+    formatChips.forEach((chip) => {
+      chip.addEventListener("click", () => {
+        formatChips.forEach((c) => c.classList.remove("active"));
+        chip.classList.add("active");
+        formatoSelecionado = chip.dataset.format || "pdf";
       });
-      linhas.splice(i,1); render();
-    };
-  });
-  document.getElementById("count").textContent = linhas.length;
-}
-
-/* ==========================
-   CSV EXPORT
-========================== */
-
-document.getElementById("export").onclick = () => {
-  let out = "De;Para;Horario;Ordem;Local;Hora;Motorista;Paxs;Linha;Fiscal;Data\n";
-  const fiscal = document.getElementById("fiscal").value;
-  const data = document.getElementById("data").value;
-
-  linhas.forEach(l => {
-    out += [
-      l.De,l.Para,l.Horário,l.Ordem,l.Local,l.Hora,l.Motorista,l.Paxs,
-      getLinha(l.De,l.Para),
-      fiscal, data
-    ].join(";") + "\n";
-  });
-
-  const blob = new Blob([out], { type:"text/csv" });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "relatorio_diario.csv";
-  a.click();
-};
-
-/* ==========================
-   SALVAR NO SHEETS
-========================== */
-
-document.getElementById("saveSheets").onclick = () => {
-  if (!linhas.length) return alert("Nenhuma linha adicionada.");
-
-  const fiscal = document.getElementById("fiscal").value;
-  const data = document.getElementById("data").value;
-
-  const rows = linhas.map(l => ([
-    l.De,l.Para,l.Horário,l.Ordem,l.Local,l.Hora,l.Motorista,l.Paxs,
-    getLinha(l.De,l.Para), fiscal, data
-  ]));
-
-  fetch(SHEETS_WEBAPP_URL, {
-    method: "POST",
-    headers: {"Content-Type":"text/plain"},
-    body: JSON.stringify({ rows })
-  })
-  .then(r=>r.text())
-  .then(t=>{
-    try {
-      const j = JSON.parse(t);
-      if (j.status==="ok") alert("Enviado com sucesso!");
-      else alert("Erro: "+t);
-    } catch {
-      alert("Resposta inesperada: "+t);
-    }
-  });
-};
-
-/* ==========================
-   TABS
-========================== */
-
-document.querySelectorAll(".tab").forEach(btn => {
-  btn.onclick = () => {
-    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-    btn.classList.add("active");
-
-    const alvo = btn.dataset.target;
-
-    document.getElementById("main-diario").style.display =
-      (alvo === "diario" ? "block" : "none");
-
-    document.getElementById("main-ocorrencia").style.display =
-      (alvo === "ocorrencia" ? "block" : "none");
-  };
-});
-
-/* ==========================
-   PDF DA OCORRÊNCIA
-========================== */
-
-document.getElementById("oc_pdf").onclick = async () => {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  let y = 15;
-
-  doc.setFontSize(16);
-  doc.text("REGISTRO DE OCORRÊNCIA", 10, y);
-  y += 12;
-
-  const fiscal = document.getElementById("oc_fiscal").value;
-  const data = document.getElementById("oc_data").value.split("-").reverse().join("/");
-
-  doc.setFontSize(12);
-  doc.text(`Fiscal: ${fiscal}`, 10, y);
-  doc.text(`Data: ${data}`, 120, y);
-  y += 12;
-
-  // DADOS
-  const dados = [
-    ["De", document.getElementById("oc_de").value],
-    ["Para", document.getElementById("oc_para").value],
-    ["Horário", document.getElementById("oc_horario").value],
-    ["Nº Ordem", document.getElementById("oc_ordem").value],
-    ["Local", document.getElementById("oc_local").value],
-    ["Hora", document.getElementById("oc_hora").value],
-    ["Motorista", document.getElementById("oc_motorista").value],
-    ["Paxs", document.getElementById("oc_paxs").value],
-  ];
-
-  dados.forEach(([k,v]) => {
-    doc.text(`${k}: ${v}`, 10, y);
-    y += 6;
-  });
-
-  y += 8;
-  doc.setFontSize(13);
-  doc.text("Descrição da Ocorrência:", 10, y);
-  y += 6;
-
-  doc.setFontSize(12);
-  const texto = document.getElementById("oc_texto").value;
-  const txt = doc.splitTextToSize(texto, 180);
-  doc.text(txt, 10, y);
-  y += txt.length * 6 + 10;
-
-  /* ========================
-        FOTOS
-  ======================== */
-  const fotos = document.getElementById("oc_fotos").files;
-
-  for (let i = 0; i < fotos.length; i++) {
-    const file = fotos[i];
-
-    const base64 = await new Promise(res => {
-      const r = new FileReader();
-      r.onload = () => res(r.result);
-      r.readAsDataURL(file);
     });
 
-    const imgProps = doc.getImageProperties(base64);
-    const w = 180;
-    const h = imgProps.height * (w / imgProps.width);
+    // Offline/online
+    function updateOnlineStatus() {
+      if (!navigator.onLine) {
+        offline_alert.classList.remove("hidden");
+      } else {
+        offline_alert.classList.add("hidden");
+      }
+    }
+    window.addEventListener("online", updateOnlineStatus);
+    window.addEventListener("offline", updateOnlineStatus);
+    updateOnlineStatus();
 
-    if (y + h > 280) {
-      doc.addPage();
-      y = 20;
+    // Fotos
+    oc_fotos.addEventListener("change", (event) => {
+      const files = Array.from(event.target.files || []);
+      fotosSelecionadas = files;
+      renderPhotoPreview();
+    });
+
+    function renderPhotoPreview() {
+      photoPreview.innerHTML = "";
+      if (!fotosSelecionadas.length) return;
+
+      fotosSelecionadas.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const card = document.createElement("div");
+          card.className = "photo-card";
+          const img = document.createElement("img");
+          img.src = e.target.result;
+          img.alt = `Foto ${index + 1}`;
+          const removeBtn = document.createElement("button");
+          removeBtn.className = "remove-photo";
+          removeBtn.textContent = "×";
+          removeBtn.onclick = () => {
+            fotosSelecionadas.splice(index, 1);
+            renderPhotoPreview();
+          };
+          card.appendChild(img);
+          card.appendChild(removeBtn);
+          photoPreview.appendChild(card);
+        };
+        reader.readAsDataURL(file);
+      });
     }
 
-    doc.text(`Foto ${i+1}`, 10, y);
-    y += 6;
+    // Texto da ocorrência
+    function montarTextoOcorrencia() {
+      const fiscalNome = fiscal.value || "";
+      const fiscalMat = fiscalMatricula.value || "";
+      const base = fiscalBase.value || "";
+      const dataOcc = dataInput.value || "";
+      const horaOcc = horaInput.value || "";
+      const cidade = cidadeInput.value || "";
+      const linha = linhaInput.value || "";
+      const prefixo = prefixoInput.value || "";
+      const placa = placaInput.value || "";
+      const tipo = tipoInput.value || "";
+      const gravidade = gravidadeInput.value || "";
+      const envolvidos = envolvidosInput.value || "";
+      const resumo = resumoInput.value || "";
+      const detalhes = detalhesInput.value || "";
+      const acoes = acoesInput.value || "";
+      const classificacao = classificacaoInput.value || "";
+      const setor = setorInput.value || "";
+      const prazo = prazoInput.value || "";
+      const obs = obsInput.value || "";
+      const anonimo = anonimoCheckbox.checked;
 
-    doc.addImage(base64, "JPEG", 10, y, w, h);
-    y += h + 10;
-  }
+      let texto = "";
+      texto += "REGISTRO DE OCORRÊNCIA - FISCALIZAÇÃO\n";
+      texto += "-------------------------------------\n\n";
 
-  doc.save("ocorrencia.pdf");
-};
+      if (!anonimo) {
+        texto += `Fiscal: ${fiscalNome || "Não informado"}\n`;
+        if (fiscalMat) texto += `Matrícula: ${fiscalMat}\n`;
+        if (base) texto += `Base/Local: ${base}\n`;
+        texto += "\n";
+      } else {
+        texto += "Fiscal: [Ocorrência registrada como ANÔNIMA]\n\n";
+      }
 
-/* ==========================
-   SERVICE WORKER
-========================== */
+      texto += "DADOS BÁSICOS DA OCORRÊNCIA\n";
+      texto += `Data: ${dataOcc || "-"}\n`;
+      texto += `Hora: ${horaOcc || "-"}\n`;
+      texto += `Cidade/Local: ${cidade || "-"}\n`;
+      texto += `Linha: ${linha || "-"}\n`;
+      texto += `Prefixo do Veículo: ${prefixo || "-"}\n`;
+      texto += `Placa: ${placa || "-"}\n`;
+      texto += `Tipo de Ocorrência: ${tipo || "-"}\n`;
+      texto += `Gravidade: ${gravidade || "-"}\n`;
+      texto += `Envolvidos: ${envolvidos || "-"}\n`;
+      texto += "\n";
 
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/sw.js");
-}
-</script>
+      texto += "DESCRIÇÃO DA OCORRÊNCIA\n";
+      texto += `Resumo: ${resumo || "-"}\n\n`;
+      texto += `Detalhamento: ${detalhes || "-"}\n\n`;
+      texto += `Ações adotadas pelo fiscal: ${acoes || "-"}\n\n`;
 
+      texto += "CLASSIFICAÇÃO / ENCAMINHAMENTO\n";
+      texto += `Classificação: ${classificacao || "-"}\n`;
+      texto += `Setor responsável: ${setor || "-"}\n`;
+      texto += `Prazo para retorno/providências: ${prazo || "-"}\n`;
+      texto += `Observações ao setor responsável: ${obs || "-"}\n`;
+
+      if (fotosSelecionadas.length) {
+        texto += "\nEVIDÊNCIAS\n";
+        texto += `Quantidade de fotos anexadas: ${fotosSelecionadas.length}\n`;
+        texto += "As imagens estão anexas ao PDF gerado.\n";
+      }
+
+      texto += "\n-------------------------------------\n";
+      texto += "Registro gerado via APP de Fiscalização.\n";
+
+      return texto;
+    }
+
+    // Geração de PDF da Ocorrência (AJUSTADO)
+    async function gerarPDFOcorrencia() {
+      console.log('Clique no botão Gerar PDF da Ocorrência recebido.');
+
+      const jsPDFLib =
+        (window.jspdf && window.jspdf.jsPDF) ||
+        window.jsPDF ||
+        null;
+
+      if (!jsPDFLib) {
+        console.error('jsPDF não encontrado. window.jspdf =', window.jspdf, 'window.jsPDF =', window.jsPDF);
+        alert("Não foi possível carregar o gerador de PDF (jsPDF). Verifique se o arquivo foi aberto com internet ou se a biblioteca foi carregada corretamente.");
+        return;
+      }
+
+      const doc = new jsPDFLib();
+
+      const fiscalNome = fiscal.value || "";
+      const dataOcc = dataInput.value || "";
+
+      let y = 15;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.text("REGISTRO DE OCORRÊNCIA - FISCALIZAÇÃO", 10, y);
+      y += 8;
+
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+
+      const anonimo = anonimoCheckbox.checked;
+      if (!anonimo) {
+        const linhaFiscal = `Fiscal: ${fiscalNome || "Não informado"}`;
+        doc.text(linhaFiscal, 10, y);
+        y += 6;
+        const mat = fiscalMatricula.value || "";
+        const base = fiscalBase.value || "";
+        if (mat) {
+          doc.text(`Matrícula: ${mat}`, 10, y);
+          y += 6;
+        }
+        if (base) {
+          doc.text(`Base/Local: ${base}`, 10, y);
+          y += 6;
+        }
+      } else {
+        doc.text("Fiscal: [Ocorrência registrada como ANÔNIMA]", 10, y);
+        y += 6;
+      }
+
+      y += 2;
+      doc.setFont("helvetica", "bold");
+      doc.text("DADOS BÁSICOS DA OCORRÊNCIA", 10, y);
+      y += 6;
+      doc.setFont("helvetica", "normal");
+
+      const horaOcc = horaInput.value || "";
+      const cidade = cidadeInput.value || "";
+      const linha = linhaInput.value || "";
+      const prefixo = prefixoInput.value || "";
+      const placa = placaInput.value || "";
+      const tipo = tipoInput.value || "";
+      const gravidade = gravidadeInput.value || "";
+      const envolvidos = envolvidosInput.value || "";
+
+      const dadosBasicos = [
+        `Data: ${dataOcc || "-"}`,
+        `Hora: ${horaOcc || "-"}`,
+        `Cidade/Local: ${cidade || "-"}`,
+        `Linha: ${linha || "-"}`,
+        `Prefixo do Veículo: ${prefixo || "-"}`,
+        `Placa: ${placa || "-"}`,
+        `Tipo de Ocorrência: ${tipo || "-"}`,
+        `Gravidade: ${gravidade || "-"}`,
+        `Envolvidos: ${envolvidos || "-"}`
+      ];
+
+      dadosBasicos.forEach((linhaText) => {
+        const textoQuebrado = doc.splitTextToSize(linhaText, 190);
+        doc.text(textoQuebrado, 10, y);
+        y += textoQuebrado.length * 5;
+      });
+
+      y += 2;
+      doc.setFont("helvetica", "bold");
+      doc.text("DESCRIÇÃO DA OCORRÊNCIA", 10, y);
+      y += 6;
+      doc.setFont("helvetica", "normal");
+
+      const resumo = resumoInput.value || "";
+      const detalhes = detalhesInput.value || "";
+      const acoes = acoesInput.value || "";
+
+      const descricaoBlocos = [
+        { titulo: "Resumo", texto: resumo || "-" },
+        { titulo: "Detalhamento", texto: detalhes || "-" },
+        { titulo: "Ações adotadas pelo fiscal", texto: acoes || "-" },
+      ];
+
+      descricaoBlocos.forEach((bloco) => {
+        const titulo = bloco.titulo + ":";
+        doc.setFont("helvetica", "bold");
+        doc.text(titulo, 10, y);
+        y += 5;
+        doc.setFont("helvetica", "normal");
+        const textoQuebrado = doc.splitTextToSize(bloco.texto, 190);
+        doc.text(textoQuebrado, 10, y);
+        y += textoQuebrado.length * 5 + 2;
+      });
+
+      y += 2;
+      doc.setFont("helvetica", "bold");
+      doc.text("CLASSIFICAÇÃO / ENCAMINHAMENTO", 10, y);
+      y += 6;
+      doc.setFont("helvetica", "normal");
+
+      const classificacao = classificacaoInput.value || "";
+      const setor = setorInput.value || "";
+      const prazo = prazoInput.value || "";
+      const obs = obsInput.value || "";
+
+      const linhaText = [
+        "Classificação: " + (classificacao || "-"),
+        "Setor responsável: " + (setor || "-"),
+        "Prazo para retorno/providências: " + (prazo || "-"),
+        "Observações ao setor responsável: " + (obs || "-")
+      ];
+
+      linhaText.forEach((txt) => {
+        const textoQuebrado = doc.splitTextToSize(txt, 190);
+        doc.text(textoQuebrado, 10, y);
+        y += textoQuebrado.length * 5;
+      });
+
+      if (fotosSelecionadas.length > 0) {
+        y += 4;
+        doc.setFont("helvetica", "bold");
+        doc.text("EVIDÊNCIAS (FOTOS)", 10, y);
+        y += 6;
+        doc.setFont("helvetica", "normal");
+        doc.text(
+          `Quantidade de fotos anexadas: ${fotosSelecionadas.length}. As imagens serão inseridas a seguir, conforme espaço disponível.`,
+          10,
+          y
+        );
+        y += 8;
+
+        for (let i = 0; i < fotosSelecionadas.length; i++) {
+          const file = fotosSelecionadas[i];
+          await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              const imgData = e.target.result;
+              try {
+                doc.addImage(imgData, "JPEG", 10, y, 60, 45);
+                y += 50;
+                if (y > 260 && i < fotosSelecionadas.length - 1) {
+                  doc.addPage();
+                  y = 15;
+                }
+              } catch (error) {
+                console.error("Erro ao adicionar imagem ao PDF:", error);
+              }
+              resolve();
+            };
+            reader.readAsDataURL(file);
+          });
+        }
+      }
+
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "italic");
+      if (y > 270) {
+        doc.addPage();
+        y = 15;
+      }
+      y += 4;
+      doc.text("Registro gerado via APP de Fiscalização.", 10, y);
+
+      let nomeArquivo = "ocorrencia_fiscalizacao";
+      if (dataOcc) {
+        nomeArquivo += "_" + dataOcc.replace(/-/g, "");
+      }
+      if (fiscalNome) {
+        nomeArquivo += "_" + fiscalNome.split(" ")[0].toLowerCase();
+      }
+      nomeArquivo += ".pdf";
+
+      doc.save(nomeArquivo);
+    }
+
+    // Gerar texto / link
+    async function gerarTextoOcorrencia() {
+      const texto = montarTextoOcorrencia();
+      try {
+        await navigator.clipboard.writeText(texto);
+        copy_success.classList.remove("hidden");
+        setTimeout(() => {
+          copy_success.classList.add("hidden");
+        }, 2500);
+        alert("Texto da ocorrência copiado para a área de transferência. Cole no WhatsApp, e-mail ou onde preferir.");
+      } catch (err) {
+        console.error("Erro ao copiar para área de transferência:", err);
+        alert("Não foi possível copiar automaticamente. Irei exibir o texto para que você copie manualmente.");
+        const blob = new Blob([texto], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        window.open(url, "_blank");
+      }
+    }
+
+    // Limpar tudo
+    function limparCamposOcorrencia() {
+      const inputs = [
+        fiscal, fiscalMatricula, fiscalBase, dataInput, horaInput, cidadeInput, linhaInput,
+        prefixoInput, placaInput, tipoInput, gravidadeInput, envolvidosInput, resumoInput,
+        detalhesInput, acoesInput, classificacaoInput, setorInput, prazoInput, obsInput
+      ];
+      inputs.forEach((el) => {
+        if (!el) return;
+        if (el.tagName === "SELECT") {
+          el.selectedIndex = 0;
+        } else {
+          el.value = "";
+        }
+      });
+      anonimoCheckbox.checked = false;
+      fotosSelecionadas = [];
+      renderPhotoPreview();
+    }
+
+    // Eventos
+    if (oc_pdf_btn) oc_pdf_btn.onclick = gerarPDFOcorrencia;
+    if (oc_link_btn) oc_link_btn.onclick = gerarTextoOcorrencia;
+    if (limpar_btn) limpar_btn.onclick = limparCamposOcorrencia;
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker
+          .register("sw.js")
+          .then((reg) => console.log("Service Worker registrado:", reg.scope))
+          .catch((err) => console.error("Falha ao registrar Service Worker:", err));
+      });
+    }
+  </script>
+
+  <!-- jsPDF UMD (mantido) -->
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
+    integrity="sha512-XcRPwN1x7k3prVqUNShUMpOWcZH/5LiCFYI8a9kaI0s5momkGLumZ5qX6Ch12HaxJXhMHDL/95B2S/bjXrd6WQ=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer">
+  </script>
 </body>
 </html>
