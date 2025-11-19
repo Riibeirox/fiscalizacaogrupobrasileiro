@@ -36,8 +36,10 @@
     .tab.active { border-bottom-color:#facc15; color:#facc15; font-weight:600; }
 
     main { padding:16px; max-width:1000px; margin:0 auto; }
-    .card { background:var(--card); border-radius:16px;
-      padding:16px; box-shadow:0 6px 20px rgba(0,0,0,.06); margin-bottom:16px; }
+    .card {
+      background:var(--card); border-radius:16px;
+      padding:16px; box-shadow:0 6px 20px rgba(0,0,0,.06); margin-bottom:16px;
+    }
 
     .row { display:flex; gap:12px; align-items:center; margin-bottom:12px; }
     .row label { width:180px; color:var(--muted); }
@@ -46,7 +48,10 @@
       border-radius:10px; background:#fff;
     }
 
-    .grid { display:grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap:12px; margin-bottom:12px; }
+    .grid {
+      display:grid; grid-template-columns: repeat(2,minmax(0,1fr));
+      gap:12px; margin-bottom:12px;
+    }
 
     button {
       padding:8px 12px; border-radius:10px; border:1px solid #d1d5db;
@@ -56,13 +61,15 @@
 
     table { width:100%; border-collapse: collapse; }
     th, td {
-      padding:8px 10px; border-bottom:1px solid #e5e7eb; white-space:nowrap;
+      padding:8px 10px; border-bottom:1px solid #e5e7eb;
+      white-space:nowrap;
     }
 
     .badge { background:#eef2ff; color:#3730a3; padding:2px 8px; border-radius:999px; font-size:12px; }
     .list-header { display:flex; justify-content:space-between; align-items:center; }
     .delete { color:#b91c1c; border-color:#fecaca; }
     .edit   { color:#1d4ed8; border-color:#bfdbfe; }
+
     footer { text-align:center; padding:24px; color:#6b7280; }
 
     /* LOGIN */
@@ -76,6 +83,7 @@
 
   </style>
 </head>
+
 <body>
 
 <!-- LOGIN -->
@@ -120,8 +128,7 @@
       <button class="tab" data-target="ocorrencia">Registro de Ocorrência</button>
     </nav>
   </header>
-
-  <!-- RELATÓRIO DIÁRIO -->
+  <!-- TELA RELATÓRIO DIÁRIO -->
   <main id="main-diario">
 
     <section class="card">
@@ -176,7 +183,7 @@
     </section>
   </main>
 
-  <!-- OCORRÊNCIA -->
+  <!-- TELA REGISTRO DE OCORRÊNCIA -->
   <main id="main-ocorrencia" style="display:none;">
 
     <section class="card">
@@ -253,8 +260,7 @@ const CIDADES = Object.keys(CODIGOS).concat(["Salvador"]);
    LOGIN
 ========================== */
 
-const loginBtn = document.getElementById("loginBtn");
-loginBtn.onclick = () => {
+document.getElementById("loginBtn").onclick = () => {
   const id = document.getElementById("loginFiscal").value;
   const pin = document.getElementById("loginPin").value;
 
@@ -286,13 +292,12 @@ if (saved) {
   if (user) iniciarApp(user);
 }
 
-/* ==========================
-   SELECTS
+  /* ==========================
+   SELECTS (CIDADES)
 ========================== */
 
 function preencherSelects() {
-  const selects = ["de","para","oc_de","oc_para"];
-  selects.forEach(id => {
+  ["de","para","oc_de","oc_para"].forEach(id => {
     const sel = document.getElementById(id);
     sel.innerHTML = "";
     ["Salvador", ...Object.keys(CODIGOS)].forEach(c => {
@@ -304,6 +309,7 @@ function preencherSelects() {
 
   document.getElementById("de").value = "Salvador";
   document.getElementById("para").value = "Camaçari";
+
   document.getElementById("oc_de").value = "Salvador";
   document.getElementById("oc_para").value = "Camaçari";
 }
@@ -313,15 +319,9 @@ function preencherSelects() {
 ========================== */
 
 let linhas = [];
-const tabela = document.getElementById("tabela");
 
-function getCodigoCidade(cidade) {
-  return CODIGOS[cidade] || "";
-}
-
-function getLinha(de, para) {
-  return getCodigoCidade(de) || getCodigoCidade(para);
-}
+function getCod(c) { return CODIGOS[c] || ""; }
+function getLinha(de, para) { return getCod(de) || getCod(para); }
 
 document.getElementById("add").onclick = () => {
   const l = {
@@ -334,20 +334,20 @@ document.getElementById("add").onclick = () => {
     Motorista: document.getElementById("motorista").value,
     Paxs: document.getElementById("paxs").value
   };
-
   linhas.unshift(l);
   render();
 };
 
 function render() {
-  tabela.innerHTML = "";
+  const tbody = document.getElementById("tabela");
+  tbody.innerHTML = "";
   linhas.forEach((l,i) => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${l.De}</td>
       <td>${l.Para}</td>
-      <td>${getCodigoCidade(l.De)}</td>
-      <td>${getCodigoCidade(l.Para)}</td>
+      <td>${getCod(l.De)}</td>
+      <td>${getCod(l.Para)}</td>
       <td>${l.Horário}</td>
       <td>${l.Ordem}</td>
       <td>${l.Local}</td>
@@ -360,38 +360,33 @@ function render() {
         <button class="delete">Del</button>
       </td>
     `;
-    tabela.appendChild(tr);
+    tbody.appendChild(tr);
 
-    tr.querySelector(".delete").onclick = () => {
-      linhas.splice(i,1); render();
-    };
+    tr.querySelector(".delete").onclick = () => { linhas.splice(i,1); render(); };
     tr.querySelector(".edit").onclick = () => {
-      document.getElementById("de").value = l.De;
-      document.getElementById("para").value = l.Para;
-      document.getElementById("horario").value = l.Horário;
-      document.getElementById("ordem").value = l.Ordem;
-      document.getElementById("local").value = l.Local;
-      document.getElementById("hora").value = l.Hora;
-      document.getElementById("motorista").value = l.Motorista;
-      document.getElementById("paxs").value = l.Paxs;
+      ["De","Para","Horário","Ordem","Local","Hora","Motorista","Paxs"].forEach(campo => {
+        document.getElementById(campo.toLowerCase()).value = l[campo];
+      });
       linhas.splice(i,1); render();
     };
   });
-
   document.getElementById("count").textContent = linhas.length;
 }
 
-/* CSV */
+/* ==========================
+   CSV EXPORT
+========================== */
+
 document.getElementById("export").onclick = () => {
   let out = "De;Para;Horario;Ordem;Local;Hora;Motorista;Paxs;Linha;Fiscal;Data\n";
+  const fiscal = document.getElementById("fiscal").value;
+  const data = document.getElementById("data").value;
 
   linhas.forEach(l => {
     out += [
-      l.De, l.Para, l.Horário, l.Ordem,
-      l.Local, l.Hora, l.Motorista, l.Paxs,
+      l.De,l.Para,l.Horário,l.Ordem,l.Local,l.Hora,l.Motorista,l.Paxs,
       getLinha(l.De,l.Para),
-      document.getElementById("fiscal").value,
-      document.getElementById("data").value
+      fiscal, data
     ].join(";") + "\n";
   });
 
@@ -400,26 +395,29 @@ document.getElementById("export").onclick = () => {
 
   const a = document.createElement("a");
   a.href = url;
-  a.download = "relatorio.csv";
+  a.download = "relatorio_diario.csv";
   a.click();
 };
 
-/* Envio ao Google Sheets */
+/* ==========================
+   SALVAR NO SHEETS
+========================== */
+
 document.getElementById("saveSheets").onclick = () => {
   if (!linhas.length) return alert("Nenhuma linha adicionada.");
 
-  const data = linhas.map(l => ([
-    l.De,l.Para,l.Horário,l.Ordem,l.Local,
-    l.Hora,l.Motorista,l.Paxs,
-    getLinha(l.De,l.Para),
-    document.getElementById("fiscal").value,
-    document.getElementById("data").value
+  const fiscal = document.getElementById("fiscal").value;
+  const data = document.getElementById("data").value;
+
+  const rows = linhas.map(l => ([
+    l.De,l.Para,l.Horário,l.Ordem,l.Local,l.Hora,l.Motorista,l.Paxs,
+    getLinha(l.De,l.Para), fiscal, data
   ]));
 
   fetch(SHEETS_WEBAPP_URL, {
     method: "POST",
-    headers:{ "Content-Type":"text/plain" },
-    body: JSON.stringify({ rows:data })
+    headers: {"Content-Type":"text/plain"},
+    body: JSON.stringify({ rows })
   })
   .then(r=>r.text())
   .then(t=>{
@@ -434,65 +432,115 @@ document.getElementById("saveSheets").onclick = () => {
 };
 
 /* ==========================
-   REGISTRO DE OCORRÊNCIA
+   TABS
 ========================== */
 
-document.querySelectorAll(".tab").forEach(btn=>{
+document.querySelectorAll(".tab").forEach(btn => {
   btn.onclick = () => {
-    document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
     btn.classList.add("active");
 
     const alvo = btn.dataset.target;
-    document.getElementById("main-diario").style.display = (alvo==="diario"?"block":"none");
-    document.getElementById("main-ocorrencia").style.display = (alvo==="ocorrencia"?"block":"none");
+
+    document.getElementById("main-diario").style.display =
+      (alvo === "diario" ? "block" : "none");
+
+    document.getElementById("main-ocorrencia").style.display =
+      (alvo === "ocorrencia" ? "block" : "none");
   };
 });
 
-/* PDF da Ocorrência */
+/* ==========================
+   PDF DA OCORRÊNCIA
+========================== */
+
 document.getElementById("oc_pdf").onclick = async () => {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
   let y = 15;
-  doc.setFontSize(14);
+
+  doc.setFontSize(16);
   doc.text("REGISTRO DE OCORRÊNCIA", 10, y);
-  y += 10;
+  y += 12;
 
   const fiscal = document.getElementById("oc_fiscal").value;
   const data = document.getElementById("oc_data").value.split("-").reverse().join("/");
+
+  doc.setFontSize(12);
   doc.text(`Fiscal: ${fiscal}`, 10, y);
   doc.text(`Data: ${data}`, 120, y);
   y += 12;
 
-  const campos = [
-    ["De",      document.getElementById("oc_de").value],
-    ["Para",    document.getElementById("oc_para").value],
+  // DADOS
+  const dados = [
+    ["De", document.getElementById("oc_de").value],
+    ["Para", document.getElementById("oc_para").value],
     ["Horário", document.getElementById("oc_horario").value],
-    ["Nº Ordem",document.getElementById("oc_ordem").value],
-    ["Local",   document.getElementById("oc_local").value],
-    ["Hora",    document.getElementById("oc_hora").value],
-    ["Motorista",document.getElementById("oc_motorista").value],
-    ["Paxs",    document.getElementById("oc_paxs").value]
+    ["Nº Ordem", document.getElementById("oc_ordem").value],
+    ["Local", document.getElementById("oc_local").value],
+    ["Hora", document.getElementById("oc_hora").value],
+    ["Motorista", document.getElementById("oc_motorista").value],
+    ["Paxs", document.getElementById("oc_paxs").value],
   ];
 
-  doc.setFontSize(11);
-  campos.forEach(c=>{
-    doc.text(`${c[0]}: ${c[1]}`, 10, y);
+  dados.forEach(([k,v]) => {
+    doc.text(`${k}: ${v}`, 10, y);
     y += 6;
   });
 
+  y += 8;
+  doc.setFontSize(13);
+  doc.text("Descrição da Ocorrência:", 10, y);
   y += 6;
+
   doc.setFontSize(12);
-  doc.text("Ocorrência:", 10, y);
-  y += 6;
-
   const texto = document.getElementById("oc_texto").value;
-  const linhasTxt = doc.splitTextToSize(texto, 180);
-  doc.text(linhasTxt, 10, y);
-  y += linhasTxt.length * 6 + 10;
+  const txt = doc.splitTextToSize(texto, 180);
+  doc.text(txt, 10, y);
+  y += txt.length * 6 + 10;
 
-  /* FOTOS */
-  const files = document.getElementById("oc_fotos").files;
-  for (let i = 0; i < files.length; i++) {
-    const f = files[i];
-    const dataUrl = await toData
+  /* ========================
+        FOTOS
+  ======================== */
+  const fotos = document.getElementById("oc_fotos").files;
+
+  for (let i = 0; i < fotos.length; i++) {
+    const file = fotos[i];
+
+    const base64 = await new Promise(res => {
+      const r = new FileReader();
+      r.onload = () => res(r.result);
+      r.readAsDataURL(file);
+    });
+
+    const imgProps = doc.getImageProperties(base64);
+    const w = 180;
+    const h = imgProps.height * (w / imgProps.width);
+
+    if (y + h > 280) {
+      doc.addPage();
+      y = 20;
+    }
+
+    doc.text(`Foto ${i+1}`, 10, y);
+    y += 6;
+
+    doc.addImage(base64, "JPEG", 10, y, w, h);
+    y += h + 10;
+  }
+
+  doc.save("ocorrencia.pdf");
+};
+
+/* ==========================
+   SERVICE WORKER
+========================== */
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js");
+}
+</script>
+
+</body>
+</html>
